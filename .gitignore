@@ -1,0 +1,39 @@
+===============
+Unity generated
+===============
+Temp/
+Library/
+Build/
+Builds/
+Logs/
+
+=====================================
+Visual Studio / Visual Studio Code
+=====================================
+ExportedObj/
+*.vsconfig
+.vs/
+*.userprefs
+*.csproj
+*.pidb
+*.suo
+.sln
+*.user
+*.unityproj
+.booproj
+bin/
+obj/
+Backup/
+.dwlt
+
+=====================
+OS generated files
+=====================
+.DS_Store
+.DSStore?
+.
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+Thumbs.db
