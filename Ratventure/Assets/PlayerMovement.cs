@@ -3,14 +3,19 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField] private float speed;
-    [SerializeField] private float jumpForce;
-    [SerializeField] private float jumpForceUP;
+    [SerializeField] private float speed; // скарость персонажа
+    [SerializeField] public float jumpHeight = 5; // начальная сила прыжка
+    [SerializeField] public float gravityScale = 5;
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private LayerMask wallLayer;
     private Rigidbody2D body;
-    private float jumpTime = 0.0f;
     private BoxCollider2D boxCollider;
+    public float buttonTime = 0.2f;
+    public float cancelRate = 100;
+    float jumpTime;
+    bool jumping;
+    bool jumpCancelled;
+
 
     // Start is called before the first frame update
     private void Start()
@@ -30,37 +35,40 @@ public class PlayerMovement : MonoBehaviour
         //компонент прыжка 
         if (Input.GetButtonDown("Jump") && isGrounded())
         {
-            StartJump();
+            float jumpForce = Mathf.Sqrt(jumpHeight * -2 * (Physics2D.gravity.y * body.gravityScale));
+            body.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
+            jumping = true;
+            jumpCancelled = false;
+            jumpTime = 0;
         }
-        if(Input.GetButton("Jump") && isGrounded () ) 
+        if (jumping)
         {
-            ContinueJump();
+            jumpTime += Time.deltaTime;
+            if (Input.GetButtonUp("Jump"))
+            {
+                jumpCancelled = true;
+            }
+            if (jumpTime > buttonTime)
+            {
+                jumping = false;
+            }
         }
-        if (Input.GetButtonUp("Jump") && isGrounded())
+    }
+    private void FixedUpdate()
+    {
+        if (jumpCancelled && jumping && body.velocity.y > 0)
         {
-            EndJump();
+            body.AddForce(Vector2.down * cancelRate);
         }
-
-    }
-    void StartJump()
-    {
-        jumpTime = 0.0f;
     }
 
-    void ContinueJump()
-    {
-        jumpTime += Time.fixedDeltaTime;
-    }
-
-    void EndJump()
-    {
-        float finalJumpForce = (jumpForce * (1.0f + 1.0f / jumpForceUP)) * (-1 + jumpTime);
-        body.velocity = new Vector2(body.velocity.x, finalJumpForce);
-    }
-
+    // функция для отслеживания персонажа на земле ли он
     private bool isGrounded()
     {
         RaycastHit2D raycastHit = Physics2D.BoxCast(boxCollider.bounds.center, boxCollider.bounds.size, 0, Vector2.down, 0.1f, groundLayer);
         return raycastHit.collider != null;
     }
+
 }
+
+    
