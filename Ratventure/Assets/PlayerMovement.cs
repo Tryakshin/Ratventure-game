@@ -5,7 +5,7 @@ public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private float speed; // скарость персонажа
     [SerializeField] public float jumpHeight = 5; // начальная сила прыжка
-    [SerializeField] public float gravityScale = 5;
+    [SerializeField] public float gravityScale = 5; // сила гравитация
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private LayerMask wallLayer;
     private Rigidbody2D body;
