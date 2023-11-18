@@ -10,6 +10,8 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private LayerMask wallLayer;
     private Rigidbody2D body;
     private BoxCollider2D boxCollider;
+    private SpriteRenderer sprite;
+    private Animator animator;
     public float buttonTime = 0.2f;
     public float cancelRate = 100;
     float jumpTime;
@@ -22,15 +24,47 @@ public class PlayerMovement : MonoBehaviour
     {
         body = GetComponent<Rigidbody2D>();
         boxCollider = GetComponent<BoxCollider2D>();
+        sprite = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>();
     }
 
     // Update is called once per frame
     private void Update()
     {
-        // движение вперед и назад
         float dirX = Input.GetAxis("Horizontal");
-        
-        body.velocity = new Vector2(dirX * speed, body.velocity.y);
+
+        // движение вперед и назад
+        if (Input.GetButton("Horizontal"))
+        {
+            bool is_flipix = sprite.flipX; // переменна€ дл€ фиксации момента разворота
+
+            //float dirX = Input.GetAxis("Horizontal"); 
+            body.velocity = new Vector2(dirX * speed, body.velocity.y);
+
+            sprite.flipX = dirX < 0.0f;
+            if (is_flipix && !sprite.flipX || !is_flipix && sprite.flipX) // если произошЄл поворт персонажа, то работа с коллайдером
+            {
+                Vector2 colliderSize = boxCollider.size; // ѕолучить текущие размеры коллайдера
+                // colliderSize.y *= -1; // ќтразить размеры коллайдера по вертикали
+                boxCollider.size = colliderSize; // ѕрименить новые размеры к коллайдеру
+            }
+        }
+
+        // анимаци€ бега
+        if (dirX > 0f)
+        {
+            animator.SetBool("running", true);
+        }
+        else if (dirX < 0f)
+        {
+            animator.SetBool("running", true);
+        }
+        else
+        {
+            animator.SetBool("running", false);
+        }
+
+
 
         //компонент прыжка 
         if (Input.GetButtonDown("Jump") && isGrounded())
