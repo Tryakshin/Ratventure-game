@@ -88,4 +88,5 @@ public class PlayerMovement : MonoBehaviour
         // Проверяем, находится ли персонаж на земле и не произошло ли касание стены во время прыжка
         return hit.collider != null && (!jumping || hit.collider.CompareTag("Ground"));
     }
+    //
 }
