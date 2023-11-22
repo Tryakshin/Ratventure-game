@@ -9,6 +9,8 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private LayerMask wallLayer; // Слой для определения стен
     private Rigidbody2D body;
     private BoxCollider2D boxCollider;
+    private SpriteRenderer sprite;
+    private Animator animator;
     public float buttonTime = 0.2f; // Время удержания кнопки прыжка
     public float cancelRate = 100; // Скорость отмены прыжка
     float jumpTime;
@@ -20,6 +22,8 @@ public class PlayerMovement : MonoBehaviour
     {
         body = GetComponent<Rigidbody2D>();
         boxCollider = GetComponent<BoxCollider2D>();
+        sprite = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>();
     }
 
     // Вызывается один раз за кадр
@@ -28,15 +32,30 @@ public class PlayerMovement : MonoBehaviour
         // Управление движением влево и вправо
         float dirX = Input.GetAxis("Horizontal");
 
-        // Проверка наличия стены перед движением влево или вправо
-        if (dirX > 0 && !CheckWallCollision(Vector2.right))
+        if (Input.GetButton("Horizontal"))
         {
-            body.velocity = new Vector2(dirX * speed, body.velocity.y);
+            // Проверка наличия стены перед движением влево или вправо
+            if (dirX > 0 && !CheckWallCollision(Vector2.right))
+            {
+                body.velocity = new Vector2(dirX * speed, body.velocity.y);
+            }
+            else if (dirX < 0 && !CheckWallCollision(Vector2.left))
+            {
+                body.velocity = new Vector2(dirX * speed, body.velocity.y);
+            }
+
+            bool is_flipix = sprite.flipX; // переменная для фиксации момента разворота
+
+            sprite.flipX = dirX < 0.0f;
+
+            if (is_flipix && !sprite.flipX || !is_flipix && sprite.flipX) // если произошёл поворт персонажа, то работа с коллайдером
+            {
+                Vector2 colliderSize = boxCollider.size; // Получить текущие размеры коллайдера
+                                                         // colliderSize.y *= -1; // Отразить размеры коллайдера по вертикали
+                boxCollider.size = colliderSize; // Применить новые размеры к коллайдеру
+            }
         }
-        else if (dirX < 0 && !CheckWallCollision(Vector2.left))
-        {
-            body.velocity = new Vector2(dirX * speed, body.velocity.y);
-        }
+            
 
         // Управление прыжком
         if (Input.GetButtonDown("Jump") && isGrounded())
@@ -47,6 +66,21 @@ public class PlayerMovement : MonoBehaviour
             jumpCancelled = false;
             jumpTime = 0;
         }
+
+        // анимация бега
+        if (dirX > 0f)
+        {
+            animator.SetBool("running", true);
+        }
+        else if (dirX < 0f)
+        {
+            animator.SetBool("running", true);
+        }
+        else
+        {
+            animator.SetBool("running", false);
+        }
+
 
         // Логика управления продолжительностью прыжка
         if (jumping)
@@ -84,7 +118,7 @@ public class PlayerMovement : MonoBehaviour
     private bool CheckWallCollision(Vector2 direction)
     {
         float extraWidth = 0.05f;
-        float extraHeight = 0.1f; // Добавим запас высоты для точного обнаружения стены
+        //float extraHeight = 0.1f; // Добавим запас высоты для точного обнаружения стены
 
         // Используем Raycast с учетом дополнительной высоты для точного обнаружения стены
         RaycastHit2D hit = Physics2D.Raycast(boxCollider.bounds.center, direction, boxCollider.bounds.extents.x + extraWidth, wallLayer);
