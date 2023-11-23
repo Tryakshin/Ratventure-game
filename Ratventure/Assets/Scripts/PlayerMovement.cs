@@ -11,8 +11,13 @@ public class PlayerMovement : MonoBehaviour
     private BoxCollider2D boxCollider;
     private SpriteRenderer sprite;
     private Animator animator;
+    
+    private float dirX = 0f;
     public float buttonTime = 0.2f; // Время удержания кнопки прыжка
     public float cancelRate = 100; // Скорость отмены прыжка
+    
+    private enum MovementState {standing, running, jumping, falling }
+
     float jumpTime;
     bool jumping;
     bool jumpCancelled;
@@ -30,7 +35,7 @@ public class PlayerMovement : MonoBehaviour
     private void Update()
     {
         // Управление движением влево и вправо
-        float dirX = Input.GetAxis("Horizontal");
+        dirX = Input.GetAxis("Horizontal");
 
         if (Input.GetButton("Horizontal"))
         {
@@ -44,17 +49,15 @@ public class PlayerMovement : MonoBehaviour
                 body.velocity = new Vector2(dirX * speed, body.velocity.y);
             }
 
-            bool is_flipix = sprite.flipX; // переменная для фиксации момента разворота
-
-            sprite.flipX = dirX < 0.0f;
-
-            if (is_flipix && !sprite.flipX || !is_flipix && sprite.flipX) // если произошёл поворт персонажа, то работа с коллайдером
-            {
-                Vector2 colliderSize = boxCollider.size; // Получить текущие размеры коллайдера
-                                                         // colliderSize.y *= -1; // Отразить размеры коллайдера по вертикали
-                boxCollider.size = colliderSize; // Применить новые размеры к коллайдеру
-            }
         }
+
+        //   if (is_flipix && !sprite.flipX || !is_flipix && sprite.flipX) // если произошёл поворт персонажа, то работа с коллайдером
+        //   {
+        //        Vector2 colliderSize = boxCollider.size; // Получить текущие размеры коллайдера
+        //                                                // colliderSize.y *= -1; // Отразить размеры коллайдера по вертикали
+        //        boxCollider.size = colliderSize; // Применить новые размеры к коллайдеру
+        //   }
+        
             
 
         // Управление прыжком
@@ -66,21 +69,6 @@ public class PlayerMovement : MonoBehaviour
             jumpCancelled = false;
             jumpTime = 0;
         }
-
-        // анимация бега
-        if (dirX > 0f)
-        {
-            animator.SetBool("running", true);
-        }
-        else if (dirX < 0f)
-        {
-            animator.SetBool("running", true);
-        }
-        else
-        {
-            animator.SetBool("running", false);
-        }
-
 
         // Логика управления продолжительностью прыжка
         if (jumping)
@@ -95,6 +83,43 @@ public class PlayerMovement : MonoBehaviour
                 jumping = false;
             }
         }
+
+        // функция анимации
+        UpdateAnimationState();
+    }
+
+    private void UpdateAnimationState() //Состояние анимации обновления 
+    {
+        MovementState state;
+
+        // Анимация бега
+        if (dirX > 0f)
+        {
+            state = MovementState.running;
+            sprite.flipX = false; //Разворот игрока
+        //    sprite.flip
+        }
+        else if (dirX < 0f)
+        {
+            state = MovementState.running;
+            sprite.flipX = true; //Разворот игрока
+        }
+        else
+        {
+            state = MovementState.standing;
+        }
+
+        // Проверка анимации прыжков 
+        if (body.velocity.y > .1f)
+        {
+            state = MovementState.jumping;
+        }
+        else if (body.velocity.y < -.1f)
+        {
+            state = MovementState.falling;
+        }
+
+        animator.SetInteger("state", (int)state);
     }
 
     // Вызывается фиксированное количество раз в секунду
