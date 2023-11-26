@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Wall
   - Ground
+  - CheckPoint
   layers:
   - Default
   - TransparentFX
@@ -14,7 +15,7 @@ TagManager:
   - Water
   - UI
   - Ground
-  - 
+  - CheckPoint
   - 
   - 
   - 
@@ -48,6 +49,9 @@ TagManager:
     locked: 0
   - name: environment
     uniqueID: 3126933859
+    locked: 0
+  - name: CheckPoint
+    uniqueID: 3189392403
     locked: 0
   - name: Default
     uniqueID: 0
