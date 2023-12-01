@@ -22,7 +22,7 @@ public class PlayerMovement : MonoBehaviour
     float jumpTime;
     bool jumping;
     bool jumpCancelled;
-
+    private bool CheckCheckPoint = false;
     private Vector2 initialPosition = new Vector2(1, 1.16f);
     //private Vector2 checkpointPosition;
     private const string CheckpointXKey = "CheckpointX";
@@ -142,7 +142,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("CheckPoint"))
+        if (collision.CompareTag("CheckPoint") && CheckCheckPoint == false)
         {
 
             PlayerPrefs.SetFloat("CheckpointX", transform.position.x);
@@ -150,6 +150,12 @@ public class PlayerMovement : MonoBehaviour
             PlayerPrefs.Save();
 
             Debug.Log("Checkpoint saved!");
+            CheckCheckPoint=true;
+        }
+
+        if (collision.CompareTag("Death"))
+        {
+            ReloadScene();
         }
     }
 
@@ -178,7 +184,7 @@ public class PlayerMovement : MonoBehaviour
         // —брасываем сохраненные позиции чекпоинта
         PlayerPrefs.DeleteKey("CheckpointX");
         PlayerPrefs.DeleteKey("CheckpointY");
-
+        CheckCheckPoint=false;
         Debug.Log("Checkpoint reset!");
     }
 }
