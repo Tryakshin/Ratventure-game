@@ -7,6 +7,7 @@ TagManager:
   - Wall
   - Ground
   - CheckPoint
+  - Trap
   layers:
   - Default
   - TransparentFX

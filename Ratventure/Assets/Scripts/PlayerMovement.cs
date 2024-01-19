@@ -17,6 +17,9 @@ public class PlayerMovement : MonoBehaviour
     public float buttonTime = 0.2f;
     public float cancelRate = 100;
 
+    [SerializeField] private AudioSource jumpSoundEffect;
+    [SerializeField] private AudioSource checkpointSoundEffect;
+
     private enum MovementState { standing, running, jumping, falling }
 
     float jumpTime;
@@ -55,6 +58,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (Input.GetButtonDown("Jump") && isGrounded())
         {
+            jumpSoundEffect.Play();
             float jumpForce = Mathf.Sqrt(jumpHeight * -2 * (Physics2D.gravity.y * body.gravityScale));
             body.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
             jumping = true;
@@ -140,16 +144,19 @@ public class PlayerMovement : MonoBehaviour
         return hit.collider != null && (!jumping || hit.collider.CompareTag("Ground"));
     }
 
+    //если  игрок взаимодействует с чекпоинтом
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("CheckPoint"))
         {
-
+            checkpointSoundEffect.Play();
             PlayerPrefs.SetFloat("CheckpointX", transform.position.x);
             PlayerPrefs.SetFloat("CheckpointY", transform.position.y);
             PlayerPrefs.Save();
 
             Debug.Log("Checkpoint saved!");
+
+            Destroy(collision.gameObject);
         }
     }
 
@@ -180,5 +187,6 @@ public class PlayerMovement : MonoBehaviour
         PlayerPrefs.DeleteKey("CheckpointY");
 
         Debug.Log("Checkpoint reset!");
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }
